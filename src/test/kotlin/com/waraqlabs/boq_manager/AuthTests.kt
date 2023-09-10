@@ -1,11 +1,10 @@
-package com.waraqlabs
+package com.waraqlabs.boq_manager
 
-import com.waraqlabs.auth.ParsedLoginCode
-import com.waraqlabs.auth.generateLoginCode
+import com.waraqlabs.boq_manager.auth.ParsedLoginCode
+import com.waraqlabs.boq_manager.auth.generateLoginCode
 import de.sharpmind.ktor.EnvConfig
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import org.junit.Assert.assertFalse
@@ -16,7 +15,6 @@ import java.time.ZonedDateTime
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.test.Test
-import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class AuthTests {

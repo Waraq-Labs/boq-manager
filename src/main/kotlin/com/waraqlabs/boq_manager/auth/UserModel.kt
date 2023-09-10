@@ -1,6 +1,6 @@
-package com.waraqlabs.auth
+package com.waraqlabs.boq_manager.auth
 
-import com.waraqlabs.plugins.Database
+import com.waraqlabs.boq_manager.plugins.Database
 
 object UserModel {
     fun doesUserExist(email: String): Boolean {

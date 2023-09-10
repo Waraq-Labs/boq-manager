@@ -1,4 +1,4 @@
-package com.waraqlabs.plugins
+package com.waraqlabs.boq_manager.plugins
 
 import de.sharpmind.ktor.EnvConfig
 import io.ktor.server.application.*

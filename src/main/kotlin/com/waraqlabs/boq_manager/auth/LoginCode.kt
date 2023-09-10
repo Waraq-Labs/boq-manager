@@ -1,4 +1,4 @@
-package com.waraqlabs.auth
+package com.waraqlabs.boq_manager.auth
 
 import de.sharpmind.ktor.EnvConfig
 import java.security.MessageDigest

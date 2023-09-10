@@ -1,6 +1,6 @@
-package com.waraqlabs.auth
+package com.waraqlabs.boq_manager.auth
 
-import com.waraqlabs.plugins.SessionData
+import com.waraqlabs.boq_manager.plugins.SessionData
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.mustache.*
