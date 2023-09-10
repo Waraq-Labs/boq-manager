@@ -1,11 +1,6 @@
 package com.waraqlabs.auth
 
 import de.sharpmind.ktor.EnvConfig
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.server.util.*
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -14,6 +9,7 @@ import javax.crypto.spec.SecretKeySpec
 
 val UtcZoneId: ZoneId = ZoneId.of("UTC")
 fun utcNow(): ZonedDateTime = ZonedDateTime.now(UtcZoneId)
+
 data class ParsedLoginCode constructor(val email: String, val expiry: ZonedDateTime, val signature: String) {
     companion object {
         fun tryFromCode(code: String): ParsedLoginCode? {
