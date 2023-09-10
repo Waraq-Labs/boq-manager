@@ -3,6 +3,7 @@ package com.waraqlabs
 import com.waraqlabs.auth.ParsedLoginCode
 import com.waraqlabs.auth.generateLoginCode
 import de.sharpmind.ktor.EnvConfig
+import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -15,6 +16,7 @@ import java.time.ZonedDateTime
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 
 class AuthTests {
@@ -22,9 +24,13 @@ class AuthTests {
 
     @Test
     fun `test generate login code for valid user`() = testApplication {
-        val response = client.get("/auth/generate-login-code/?email=$ADMIN_EMAIL")
+        val response = client.post("/auth/start-login?email=$ADMIN_EMAIL") {
+            header(HttpHeaders.ContentType, ContentType.Application.FormUrlEncoded.toString())
+            setBody(
+                listOf("email" to ADMIN_EMAIL).formUrlEncode()
+            )
+        }
         assertEquals(HttpStatusCode.OK, response.status)
-        assert(response.bodyAsText().startsWith("$ADMIN_EMAIL\$"))
     }
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -52,9 +58,43 @@ class AuthTests {
     fun `test login attempt with expired code`() = testApplication {
         val expiryDateTime = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(10)
         val loginCode = generateLoginCode(ADMIN_EMAIL, expiryDateTime)
-        val response = client.get("/auth/login/?code=$loginCode")
+        val response = client.get("/auth/login?code=$loginCode")
 
         assertEquals(HttpStatusCode.Forbidden, response.status)
+    }
+
+    @Test
+    fun `test login with correct code`() = testApplication {
+        val client = createClient {
+            install(HttpCookies)
+        }
+
+        val expiryDateTime = ZonedDateTime.now(ZoneId.of("UTC")).plusMinutes(10)
+        val loginCode = generateLoginCode(ADMIN_EMAIL, expiryDateTime)
+        val response = client.get("/auth/login?code=$loginCode")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assert(
+            client.cookies("/auth/login").find { it.name == "SESSION" } != null
+        )
+    }
+
+    @Test
+    fun `test login with correct code but non-existent user account`() = testApplication {
+        startApplication()  // Needed because the login route uses the DB which depends on EnvConf to be loaded
+
+        val client = createClient {
+            install(HttpCookies)
+        }
+
+        val expiryDateTime = ZonedDateTime.now(ZoneId.of("UTC")).plusMinutes(10)
+        val loginCode = generateLoginCode("me@asadjb.com", expiryDateTime)
+        val response = client.get("/auth/login?code=$loginCode")
+
+        assertEquals(HttpStatusCode.NotFound, response.status)
+        assert(
+            client.cookies("/auth/login").find { it.name == "SESSION" } == null
+        )
     }
 
     @Test
@@ -88,10 +128,11 @@ class AuthTests {
             var parsedCode = ParsedLoginCode.tryFromCode(code)!!
             assert(parsedCode.isValid())
 
+            // Test that code is not valid with an expiry time in the past
             expiry = ZonedDateTime.now(ZoneId.of("UTC")).minusMinutes(10)
             code = generateLoginCode(email, expiry)
             parsedCode = ParsedLoginCode.tryFromCode(code)!!
-            assert(!parsedCode.isValid())
+            assertFalse(parsedCode.isValid())
         }
     }
 }

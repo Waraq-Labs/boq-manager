@@ -1,0 +1,14 @@
+<div class="container">
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="navbar-brand">BOQ Manager</a>
+            <ul class="navbar-nav">
+                {{^ user}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/auth/start-login">Login</a>
+                    </li>
+                {{/user}}
+            </ul>
+        </div>
+    </nav>
+</div>

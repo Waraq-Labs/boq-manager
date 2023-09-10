@@ -1,0 +1,32 @@
+<html>
+<head>
+    <title>Login - JHU Engineering BOQ Management System</title>
+    {{> partials/common_head }}
+</head>
+
+<body>
+
+{{> partials/nav }}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Login</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email">
+                    <div id="emailHelp" class="form-text">Enter the email address for your account.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

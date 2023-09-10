@@ -1,6 +1,7 @@
 package com.waraqlabs.auth
 
 import de.sharpmind.ktor.EnvConfig
+import java.security.MessageDigest
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -29,7 +30,7 @@ data class ParsedLoginCode constructor(val email: String, val expiry: ZonedDateT
         val expectedSignature = generateSignatureFor(stringToSign)
         val now = utcNow()
 
-        return now.isBefore(expiry) && expectedSignature == signature
+        return now.isBefore(expiry) && MessageDigest.isEqual(expectedSignature.toByteArray(), signature.toByteArray())
     }
 }
 
