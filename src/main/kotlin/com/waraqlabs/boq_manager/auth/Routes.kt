@@ -3,7 +3,9 @@ package com.waraqlabs.boq_manager.auth
 import com.waraqlabs.boq_manager.plugins.SessionData
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.mustache.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -11,6 +13,15 @@ import io.ktor.server.sessions.*
 import io.ktor.server.util.*
 
 fun Route.authRoutes() {
+    authenticate {
+        route("/me") {
+            get {
+                val user = call.principal<User>()!!
+                call.respondText(user.email)
+            }
+        }
+    }
+
     route("/auth") {
         route("start-login") {
             get {
@@ -54,15 +65,13 @@ fun Route.authRoutes() {
                 return@get call.respondText("Invalid login code.", status = HttpStatusCode.Forbidden)
             }
 
-            if (!AuthDAO.doesUserExist(parsedCode.email)) {
-                return@get call.respondText(
-                    "User not found.",
-                    status = HttpStatusCode.NotFound
-                )
+            try {
+                val user = AuthDAO.getUserByEmail(parsedCode.email)
+                call.sessions.set(SessionData(loggedInUserId = user.id))
+                call.respondText("Success")
+            } catch (e: NotFoundException) {
+                call.respondText("User not found.", status = HttpStatusCode.NotFound)
             }
-
-            call.sessions.set(SessionData(loggedInUserId = 5))
-            call.respondText("Success")
         }
     }
 }

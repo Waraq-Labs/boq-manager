@@ -28,5 +28,6 @@ val NoCacheMustache: ApplicationPlugin<MustacheConfig> = createApplicationPlugin
 }
 
 fun Application.configureTemplating() {
+    // TODO: Install cache/no-cache version based on config/environment
     install(NoCacheMustache)
 }

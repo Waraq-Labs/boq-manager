@@ -1,8 +1,10 @@
 package com.waraqlabs.boq_manager.auth
 
 import com.waraqlabs.boq_manager.plugins.Database
+import io.ktor.server.auth.*
 import io.ktor.server.plugins.*
 import java.io.InvalidClassException
+import java.sql.ResultSet
 
 
 enum class UserRole {
@@ -24,7 +26,15 @@ enum class UserRole {
     }
 }
 
-data class User(val id: Int, val email: String, val role: UserRole)
+data class User(val id: Int, val email: String, val role: UserRole) : Principal {
+    companion object {
+        fun fromResultSet(resultSet: ResultSet) = User(
+            id = resultSet.getInt("id"),
+            email = resultSet.getString("email"),
+            role = UserRole.fromDbRepresentation(resultSet.getString("role"))
+        )
+    }
+}
 
 object AuthDAO {
     fun doesUserExist(email: String): Boolean {
@@ -46,10 +56,17 @@ object AuthDAO {
             throw NotFoundException("User not found")
         }
 
-        return User(
-            id = result.getInt("id"),
-            email = result.getString("email"),
-            role = UserRole.fromDbRepresentation(result.getString("role"))
-        )
+        return User.fromResultSet(result)
+    }
+
+    fun getUserByEmail(email: String): User {
+        val st = Database.connection.prepareStatement("SELECT id, email, role FROM users WHERE email = ?")
+        st.setString(1, email)
+        val result = st.executeQuery()
+        if (!result.next()) {
+            throw NotFoundException("User not found")
+        }
+
+        return User.fromResultSet(result)
     }
 }

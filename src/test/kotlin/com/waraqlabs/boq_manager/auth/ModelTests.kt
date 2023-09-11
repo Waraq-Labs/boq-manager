@@ -17,6 +17,16 @@ class ModelTests {
     }
 
     @Test
+    fun `test get user by email`() = testApplication {
+        application {
+            val user = AuthDAO.getUserByEmail("admin@jhuengineering.com")
+            assertEquals(1, user.id)
+            assertEquals("admin@jhuengineering.com", user.email)
+            assertEquals(UserRole.ADMIN, user.role)
+        }
+    }
+
+    @Test
     fun `test get user throws exception on non-existent id`() = testApplication {
         application {
             try {

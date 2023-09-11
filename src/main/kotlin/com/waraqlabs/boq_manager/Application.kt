@@ -13,6 +13,7 @@ fun Application.module() {
     EnvConfig.initConfig(environment.config)
 
     configureSecurity()
+    configureAuthentication()
     configureTemplating()
     configureSerialization()
     configureDatabases()
