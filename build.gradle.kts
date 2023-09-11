@@ -47,4 +47,11 @@ tasks.register("test_db") {
     }
 }
 
-tasks.test.get().dependsOn("test_db")
+tasks.test {
+    dependsOn("test_db")
+    environment(
+        mapOf(
+            "DB_URI" to "jdbc:postgresql:boq_manager_test"
+        )
+    )
+}

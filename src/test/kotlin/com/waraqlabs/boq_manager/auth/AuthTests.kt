@@ -1,7 +1,5 @@
-package com.waraqlabs.boq_manager
+package com.waraqlabs.boq_manager.auth
 
-import com.waraqlabs.boq_manager.auth.ParsedLoginCode
-import com.waraqlabs.boq_manager.auth.generateLoginCode
 import de.sharpmind.ktor.EnvConfig
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*

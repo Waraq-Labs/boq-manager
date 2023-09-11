@@ -25,7 +25,7 @@ fun Route.authRoutes() {
             post {
                 val userEmail = call.receiveParameters().getOrFail("email")
 
-                if (!UserModel.doesUserExist(userEmail)) {
+                if (!AuthDAO.doesUserExist(userEmail)) {
                     return@post call.respondText(
                         "User not found.",
                         status = HttpStatusCode.NotFound
@@ -54,7 +54,7 @@ fun Route.authRoutes() {
                 return@get call.respondText("Invalid login code.", status = HttpStatusCode.Forbidden)
             }
 
-            if (!UserModel.doesUserExist(parsedCode.email)) {
+            if (!AuthDAO.doesUserExist(parsedCode.email)) {
                 return@get call.respondText(
                     "User not found.",
                     status = HttpStatusCode.NotFound
