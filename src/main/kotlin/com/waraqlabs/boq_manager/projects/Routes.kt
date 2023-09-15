@@ -14,7 +14,23 @@ fun Route.projectRoutes() {
     authenticate {
         route("/projects") {
             get {
-                call.respondText("Projects list here.")
+                val projects = ProjectsDAO.getAllProjects()
+                val baseContext = commonTemplateContext()
+
+                val user = call.principal<User>()!!
+
+                return@get call.respond(
+                    PebbleContent(
+                        "projects/projects_list.peb",
+                        baseContext + mapOf(
+                            "projects" to projects,
+                            "canCreateProjects" to isAllowed(user.role, Permission.CreateProject),
+                            "canEditProjects" to isAllowed(user.role, Permission.EditProject),
+                            "canRecordWork" to isAllowed(user.role, Permission.RecordWork),
+                            "canViewProgress" to isAllowed(user.role, Permission.ViewProgressReport)
+                        )
+                    )
+                )
             }
 
             route("/create") {

@@ -46,4 +46,21 @@ class ModelTests {
             clearDb()
         }
     }
+
+    @Test
+    fun `test get all projects`() = testApplication {
+        application {
+            ProjectsDAO.createProject("Test Project 1", true)
+            ProjectsDAO.createProject("Test Project 2", false)
+
+            assertEquals(
+                setOf("Test Project 1" to true, "Test Project 2" to false),
+                ProjectsDAO.getAllProjects().map {
+                    it.name to it.active
+                }.toSet()
+            )
+        }
+
+        clearDb()
+    }
 }

@@ -34,6 +34,8 @@ class ViewTests {
                 expectedStatus, client.get("/projects/create").status
             )
         }
+
+        clearDb()
     }
 
     @Test

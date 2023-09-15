@@ -9,18 +9,23 @@
 </head>
 
 <body>
-<div class="container">
-    <nav class="navbar">
+<div class="container mb-5">
+    <nav class="navbar navbar-expand">
         <div class="container-fluid ps-0">
             <a href="#" class="navbar-brand">BOQ Manager</a>
             <ul class="navbar-nav">
-                <li class="nav-item">
-                    {% if user.isAuthenticated %}
+                {% if user.isAuthenticated %}
+                    <li class="nav-item">
+                        <a href="/projects" class="nav-link">Projects</a>
+                    </li>
+                    <li class="nav-item">
                         <a href="/auth/logout" class="nav-link">Logout</a>
-                    {% else %}
+                    </li>
+                {% else %}
+                    <li class="nav-item">
                         <a class="nav-link" href="/auth/start-login">Login</a>
-                    {% endif %}
-                </li>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </nav>

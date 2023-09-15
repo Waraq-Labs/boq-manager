@@ -45,6 +45,7 @@
 
                     <div class="row">
                         <div class="col d-flex justify-content-end">
+                            <a href="/projects" class="btn btn-outline-secondary me-2">Cancel</a>
                             <button type="submit" class="btn btn-primary">Create</button>
                         </div>
                     </div>

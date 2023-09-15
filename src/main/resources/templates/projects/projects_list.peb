@@ -1,0 +1,29 @@
+{% extends "base.peb" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>Your Projects</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <ul>
+            {% for project in projects %}
+                <li class="mb-2">
+                    {{ project.name }} (
+                    {% if canEditProjects %}Edit{% endif %}
+                    {% if canRecordWork %}| Record Work{% endif %}
+                    {% if canViewProgress %}| View Progress{% endif %}
+                    )
+                </li>
+            {% endfor %}
+            {% if canCreateProjects %}
+                <li><a href="/projects/create">+ Add New Project</a></li>
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
