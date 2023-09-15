@@ -1,5 +1,6 @@
 package com.waraqlabs.boq_manager.projects
 
+import com.waraqlabs.boq_manager.projects.test_utils.clearDb
 import io.ktor.server.testing.*
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -11,6 +12,8 @@ class ModelTests {
             val project = ProjectsDAO.createProject("Test Project", true)
             assertEquals("Test Project", project.name)
             assertEquals(true, project.active)
+
+            clearDb()
         }
     }
 
@@ -24,6 +27,8 @@ class ModelTests {
             for ((loc, expectedName) in listOf(location1 to "Location 1", location2 to "Location 2")) {
                 assertEquals(expectedName, loc.name)
             }
+
+            clearDb()
         }
     }
 
@@ -37,6 +42,8 @@ class ModelTests {
             val locations = ProjectsDAO.getProjectLocations(project.id)
             val locationNames = locations.map { it.name }.toSet()
             assertEquals(setOf("Location 1", "Location 2"), locationNames)
+
+            clearDb()
         }
     }
 }

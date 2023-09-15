@@ -27,6 +27,8 @@ enum class UserRole {
 }
 
 data class User(val id: Int, val email: String, val role: UserRole) : Principal {
+    val isAuthenticated = true
+
     companion object {
         fun fromResultSet(resultSet: ResultSet) = User(
             id = resultSet.getInt("id"),
@@ -34,6 +36,10 @@ data class User(val id: Int, val email: String, val role: UserRole) : Principal 
             role = UserRole.fromDbRepresentation(resultSet.getString("role"))
         )
     }
+}
+
+object UnauthenticatedUser : Principal {
+    val isAuthenticated = false
 }
 
 object AuthDAO {

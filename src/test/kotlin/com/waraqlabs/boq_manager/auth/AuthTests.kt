@@ -1,5 +1,6 @@
 package com.waraqlabs.boq_manager.auth
 
+import com.waraqlabs.boq_manager.auth.test_utils.loginWithClient
 import de.sharpmind.ktor.EnvConfig
 import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
@@ -65,13 +66,30 @@ class AuthTests {
             install(HttpCookies)
         }
 
-        val expiryDateTime = ZonedDateTime.now(ZoneId.of("UTC")).plusMinutes(10)
-        val loginCode = generateLoginCode(ADMIN_EMAIL, expiryDateTime)
-        val response = client.get("/auth/login?code=$loginCode")
+        val response = loginWithClient(ADMIN_EMAIL, client)
 
         assertEquals(HttpStatusCode.OK, response.status)
         assert(
             client.cookies("/auth/login").find { it.name == "SESSION" } != null
+        )
+    }
+
+    @Test
+    fun `test logout`() = testApplication {
+        val client = createClient {
+            install(HttpCookies)
+            followRedirects = false
+        }
+        startApplication()
+
+        loginWithClient(ADMIN_EMAIL, client)
+
+        val response = client.get("/auth/logout")
+        assertEquals(
+            HttpStatusCode.Found, response.status
+        )
+        assert(
+            client.cookies("/").find { it.name == "SESSION" } == null
         )
     }
 

@@ -1,13 +1,6 @@
-<html>
-<head>
-    <title>Login - JHU Engineering BOQ Management System</title>
-    {{> partials/common_head }}
-</head>
+{% extends "base.peb" %}
 
-<body>
-
-{{> partials/nav }}
-
+{% block content %}
 <div class="container">
     <div class="row">
         <div class="col">
@@ -26,6 +19,4 @@
         </div>
     </div>
 </div>
-
-</body>
-</html>
+{% endblock %}

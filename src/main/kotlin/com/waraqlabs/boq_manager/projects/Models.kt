@@ -50,6 +50,18 @@ object ProjectsDAO {
         return Project.fromResultSetRow(result)
     }
 
+    fun getAllProjects(): List<Project> {
+        val st = Database.connection.prepareStatement("SELECT * FROM projects")
+        val result = st.executeQuery()
+
+        val projects = mutableListOf<Project>()
+        while (result.next()) {
+            projects.add(Project.fromResultSetRow(result))
+        }
+
+        return projects
+    }
+
     fun addProjectLocation(projectId: Int, name: String): Location {
         val st = Database.connection.prepareStatement(
             "INSERT INTO project_locations (project_id, name) " +

@@ -1,10 +1,11 @@
 package com.waraqlabs.boq_manager.auth
 
+import com.waraqlabs.boq_manager.commonTemplateContext
 import com.waraqlabs.boq_manager.plugins.SessionData
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.mustache.*
+import io.ktor.server.pebble.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -13,6 +14,8 @@ import io.ktor.server.sessions.*
 import io.ktor.server.util.*
 
 fun Route.authRoutes() {
+    val successUrl = "/projects/create"
+
     authenticate {
         route("/me") {
             get {
@@ -26,9 +29,9 @@ fun Route.authRoutes() {
         route("start-login") {
             get {
                 call.respond(
-                    MustacheContent(
-                        "login.hbs",
-                        emptyMap<String, String>()
+                    PebbleContent(
+                        "auth/login.peb",
+                        commonTemplateContext()
                     )
                 )
             }
@@ -68,9 +71,16 @@ fun Route.authRoutes() {
             try {
                 val user = AuthDAO.getUserByEmail(parsedCode.email)
                 call.sessions.set(SessionData(loggedInUserId = user.id))
-                call.respondText("Success")
+                return@get call.respondRedirect(successUrl)
             } catch (e: NotFoundException) {
                 call.respondText("User not found.", status = HttpStatusCode.NotFound)
+            }
+        }
+
+        authenticate {
+            get("/logout") {
+                call.sessions.clear<SessionData>()
+                call.respondRedirect("/auth/start-login")
             }
         }
     }

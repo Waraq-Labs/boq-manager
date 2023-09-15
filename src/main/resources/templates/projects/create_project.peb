@@ -1,0 +1,72 @@
+    {% extends "base.peb" %}
+
+    {% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Create new project</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <form action="" method="post">
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            <label for="project_name" class="form-label">Project Name</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" id="project_name" name="project_name">
+                        </div>
+                    </div>
+
+                    <div id="locations_list">
+                        <template id="location_row">
+                            <div class="row location_row">
+                                <div class="offset-1 col input-group mb-2">
+                                    <span class="input-group-text">Name</span>
+                                    <input type="text" class="form-control" name="location_name[]">
+                                </div>
+                                <div class="col-2">
+                                    <button type="button" class="btn btn-outline-dark delete-location">🗑️</button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <h4>Locations</h4>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button id="new_location" type="button" class="btn btn-outline-secondary">+</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/javascript">
+        document.getElementById("new_location").addEventListener("click", () => {
+            const template = document.getElementById("location_row");
+            const new_location_el = template.content.cloneNode(true);
+            document.getElementById("locations_list").appendChild(new_location_el);
+        });
+
+        document.getElementById("locations_list").addEventListener("click", function (e) {
+            if (!e.target.matches(".delete-location")) {
+                return;
+            }
+
+            const rowEl = e.target.closest(".location_row");
+            rowEl.remove();
+        });
+    </script>
+    {% endblock %}
