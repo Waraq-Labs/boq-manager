@@ -31,3 +31,26 @@ CREATE TABLE project_locations
     name TEXT NOT NULL,
     created_on timestamptz NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE project_products
+(
+    project_id INTEGER REFERENCES projects (id),
+
+    id SERIAL PRIMARY KEY,
+    product_name TEXT NOT NULL,
+
+    created_on timestamptz NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE location_boq_entries
+(
+    location_id INTEGER REFERENCES project_locations (id),
+
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER REFERENCES project_products (id),
+
+    quantity_in_store INTEGER NOT NULL,
+    quantity_to_install INTEGER NOT NULL,
+
+    created_on timestamptz NOT NULL DEFAULT NOW()
+);

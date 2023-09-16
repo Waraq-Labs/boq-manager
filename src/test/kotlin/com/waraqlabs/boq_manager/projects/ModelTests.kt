@@ -63,4 +63,21 @@ class ModelTests {
 
         clearDb()
     }
+
+    @Test
+    fun `test create products`() = testApplication {
+        application {
+            val project = ProjectsDAO.createProject("Test Project", true)
+            ProjectsDAO.createProjectProduct(project.id, "Test Product")
+            ProjectsDAO.createProjectProduct(project.id, "Test Product 2")
+
+            val projectProducts = ProjectsDAO.getProductsForProject(project.id)
+            assertEquals(
+                setOf("Test Product", "Test Product 2"),
+                projectProducts.map { it.name }.toSet()
+            )
+        }
+
+        clearDb()
+    }
 }

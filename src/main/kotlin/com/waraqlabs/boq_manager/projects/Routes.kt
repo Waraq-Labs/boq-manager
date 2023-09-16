@@ -1,7 +1,7 @@
 package com.waraqlabs.boq_manager.projects
 
-import com.waraqlabs.boq_manager.commonTemplateContext
 import com.waraqlabs.boq_manager.auth.User
+import com.waraqlabs.boq_manager.commonTemplateContext
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -31,6 +31,27 @@ fun Route.projectRoutes() {
                         )
                     )
                 )
+            }
+
+            route("/edit/{projectId}") {
+                get {
+                    val projectId = call.parameters["projectId"]!!.toInt()
+                    val project = ProjectsDAO.getProjectById(projectId)
+                        ?: return@get call.respondText("Project not found", status = HttpStatusCode.NotFound)
+
+                    val locations = ProjectsDAO.getProjectLocations(project.id)
+
+                    val commonContext = commonTemplateContext()
+                    return@get call.respond(
+                        PebbleContent(
+                            "projects/edit_project.peb",
+                            commonContext + mapOf(
+                                "project" to project,
+                                "locations" to locations
+                            )
+                        )
+                    )
+                }
             }
 
             route("/create") {

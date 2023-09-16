@@ -4,6 +4,7 @@ import com.waraqlabs.boq_manager.plugins.Database
 import java.sql.ResultSet
 import java.time.OffsetDateTime
 import java.time.ZonedDateTime
+import javax.xml.crypto.Data
 
 val getCreatedOnField = { result: ResultSet ->
     result.getObject("created_on", OffsetDateTime::class.java).toZonedDateTime()
@@ -35,6 +36,19 @@ data class Location(val id: Int, val name: String, val projectId: Int, val creat
     }
 }
 
+data class Product(val id: Int, val name: String, val createdOn: ZonedDateTime, val projectId: Int) {
+    companion object {
+        fun fromResultSet(resultSet: ResultSet): Product {
+            return Product(
+                id = resultSet.getInt("id"),
+                name = resultSet.getString("product_name"),
+                createdOn = getCreatedOnField(resultSet),
+                projectId = resultSet.getInt("project_id")
+            )
+        }
+    }
+}
+
 object ProjectsDAO {
     fun createProject(name: String, active: Boolean): Project {
         val st =
@@ -45,6 +59,18 @@ object ProjectsDAO {
         val result = st.executeQuery()
         if (!result.next()) {
             throw Exception("Unable to save data to DB.")
+        }
+
+        return Project.fromResultSetRow(result)
+    }
+
+    fun getProjectById(id: Int): Project? {
+        val st = Database.connection.prepareStatement("SELECT * FROM projects WHERE id = ?")
+        st.setInt(1, id)
+
+        val result = st.executeQuery()
+        if (!result.next()) {
+            return null
         }
 
         return Project.fromResultSetRow(result)
@@ -91,5 +117,33 @@ object ProjectsDAO {
         }
 
         return foundLocations.toList()
+    }
+
+    fun createProjectProduct(projectId: Int, productName: String): Product {
+        val st = Database.connection.prepareStatement("INSERT INTO project_products (project_id, product_name) VALUES (?, ?) RETURNING *")
+        st.setInt(1, projectId)
+        st.setString(2, productName)
+
+        val result = st.executeQuery()
+        if (!result.next()) {
+            throw Exception("Unable to save product to DB.")
+        }
+
+        return Product.fromResultSet(result)
+    }
+
+    fun getProductsForProject(projectId: Int): List<Product> {
+        val st = Database.connection.prepareStatement("SELECT * from project_products WHERE project_id = ?")
+        st.setInt(1, projectId)
+
+        val result = st.executeQuery()
+        val products = mutableListOf<Product>()
+        while (result.next()) {
+            products.add(
+                Product.fromResultSet(result)
+            )
+        }
+
+        return products
     }
 }
