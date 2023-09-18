@@ -14,7 +14,7 @@
                 <li class="mb-2">
                     {{ project.name }} (
                     {% if canEditProjects %}
-                        <a href="/projects/edit/{{ project.id }}">Edit</a>
+                        <a href="/projects/{{ project.id }}/edit">Edit</a>
                     {% endif %}
                     {% if canRecordWork %}| Record Work{% endif %}
                     {% if canViewProgress %}| View Progress{% endif %}

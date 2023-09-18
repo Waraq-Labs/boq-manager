@@ -33,6 +33,7 @@ dependencies {
     implementation("io.ktor:ktor-server-pebble:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
     implementation("org.postgresql:postgresql:$postgres_version")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("ch.qos.logback:logback-classic:$logback_version")
@@ -40,6 +41,7 @@ dependencies {
     implementation("io.ktor:ktor-server-pebble-jvm:2.3.4")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
 }
 
 tasks.register("test_db") {

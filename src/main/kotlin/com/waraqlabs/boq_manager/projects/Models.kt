@@ -1,16 +1,17 @@
 package com.waraqlabs.boq_manager.projects
 
 import com.waraqlabs.boq_manager.plugins.Database
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toKotlinInstant
+import kotlinx.serialization.Serializable
 import java.sql.ResultSet
 import java.time.OffsetDateTime
-import java.time.ZonedDateTime
-import javax.xml.crypto.Data
 
 val getCreatedOnField = { result: ResultSet ->
-    result.getObject("created_on", OffsetDateTime::class.java).toZonedDateTime()
+    result.getObject("created_on", OffsetDateTime::class.java).toInstant().toKotlinInstant()
 }
 
-data class Project(val id: Int, val name: String, val active: Boolean, val createdOn: ZonedDateTime) {
+data class Project(val id: Int, val name: String, val active: Boolean, val createdOn: Instant) {
     companion object {
         fun fromResultSetRow(resultSet: ResultSet): Project {
             return Project(
@@ -23,7 +24,7 @@ data class Project(val id: Int, val name: String, val active: Boolean, val creat
     }
 }
 
-data class Location(val id: Int, val name: String, val projectId: Int, val createdOn: ZonedDateTime) {
+data class Location(val id: Int, val name: String, val projectId: Int, val createdOn: Instant) {
     companion object {
         fun fromResultSetRow(resultSet: ResultSet): Location {
             return Location(
@@ -36,7 +37,8 @@ data class Location(val id: Int, val name: String, val projectId: Int, val creat
     }
 }
 
-data class Product(val id: Int, val name: String, val createdOn: ZonedDateTime, val projectId: Int) {
+@Serializable
+data class Product(val id: Int, val name: String, val createdOn: Instant, val projectId: Int) {
     companion object {
         fun fromResultSet(resultSet: ResultSet): Product {
             return Product(

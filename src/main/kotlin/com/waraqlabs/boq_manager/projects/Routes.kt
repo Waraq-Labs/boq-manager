@@ -3,12 +3,47 @@ package com.waraqlabs.boq_manager.projects
 import com.waraqlabs.boq_manager.auth.User
 import com.waraqlabs.boq_manager.commonTemplateContext
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.pebble.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+
+suspend fun PipelineContext<Unit, ApplicationCall>.handleEditProjectPost() {
+    @Serializable
+    class ResponseObject (val error: String? = null)
+
+    val projectId = call.parameters["projectId"]!!.toInt()
+    val project = ProjectsDAO.getProjectById(projectId)
+        ?: return call.respondText("Project not found", status = HttpStatusCode.NotFound)
+
+    val locations = ProjectsDAO.getProjectLocations(project.id)
+    val products = ProjectsDAO.getProductsForProject(project.id)
+
+    val projectEditForm = ProjectEditForm(call.receiveParameters(), project, locations, products)
+    val validity = projectEditForm.isValid()
+    if (!validity.first) {
+        call.respondText(
+            DefaultJson.encodeToString(
+                ResponseObject(validity.second)
+            ),
+            contentType = ContentType.Application.Json,
+            status = HttpStatusCode.BadRequest
+        )
+    }
+
+    call.respondText(
+        DefaultJson.encodeToString(
+            ResponseObject()
+        ),
+        contentType = ContentType.Application.Json
+    )
+}
 
 fun Route.projectRoutes() {
     authenticate {
@@ -31,27 +66,6 @@ fun Route.projectRoutes() {
                         )
                     )
                 )
-            }
-
-            route("/edit/{projectId}") {
-                get {
-                    val projectId = call.parameters["projectId"]!!.toInt()
-                    val project = ProjectsDAO.getProjectById(projectId)
-                        ?: return@get call.respondText("Project not found", status = HttpStatusCode.NotFound)
-
-                    val locations = ProjectsDAO.getProjectLocations(project.id)
-
-                    val commonContext = commonTemplateContext()
-                    return@get call.respond(
-                        PebbleContent(
-                            "projects/edit_project.peb",
-                            commonContext + mapOf(
-                                "project" to project,
-                                "locations" to locations
-                            )
-                        )
-                    )
-                }
             }
 
             route("/create") {
@@ -88,7 +102,10 @@ fun Route.projectRoutes() {
 
                     for (locationName in locationNames) {
                         if (locationName.isEmpty()) {
-                            return@post call.respondText("Empty location name(s).", status = HttpStatusCode.BadRequest)
+                            return@post call.respondText(
+                                "Empty location name(s).",
+                                status = HttpStatusCode.BadRequest
+                            )
                         }
                     }
 
@@ -100,6 +117,75 @@ fun Route.projectRoutes() {
                     return@post call.respondRedirect(
                         "/projects"
                     )
+                }
+            }
+
+            route("/{projectId}") {
+                route("/edit") {
+                    get {
+                        val user = call.principal<User>()!!
+                        if (!isAllowed(user.role, Permission.CreateProject)) {
+                            return@get call.respondText(
+                                "You do not have permission to create a new project.",
+                                status = HttpStatusCode.Forbidden
+                            )
+                        }
+
+                        val projectId = call.parameters["projectId"]!!.toInt()
+                        val project = ProjectsDAO.getProjectById(projectId)
+                            ?: return@get call.respondText("Project not found", status = HttpStatusCode.NotFound)
+
+                        val locations = ProjectsDAO.getProjectLocations(project.id)
+                        val products = ProjectsDAO.getProductsForProject(project.id)
+
+                        val commonContext = commonTemplateContext()
+                        return@get call.respond(
+                            PebbleContent(
+                                "projects/edit_project.peb",
+                                commonContext + mapOf(
+                                    "project" to project,
+                                    "locations" to locations,
+                                    "products" to products
+                                )
+                            )
+                        )
+                    }
+
+                    post {
+                        val user = call.principal<User>()!!
+                        if (!isAllowed(user.role, Permission.CreateProject)) {
+                            return@post call.respondText(
+                                "You do not have permission to create a new project.",
+                                status = HttpStatusCode.Forbidden
+                            )
+                        }
+
+                        return@post this.handleEditProjectPost()
+                    }
+                }
+
+                route("/products") {
+                    post {
+                        val user = call.principal<User>()!!
+                        if (!isAllowed(user.role, Permission.EditProject)) {
+                            return@post call.respondText(
+                                "You don't have permission to create products.",
+                                status = HttpStatusCode.Forbidden
+                            )
+                        }
+
+                        val formData = call.receiveParameters()
+                        val productName = formData["new-product-name"]
+                            ?: return@post call.respondText(
+                                "Missing data.",
+                                status = HttpStatusCode.BadRequest
+                            )
+
+                        val projectId = call.parameters["projectId"]!!
+                        val product = ProjectsDAO.createProjectProduct(projectId.toInt(), productName)
+
+                        call.respond(product)
+                    }
                 }
             }
         }

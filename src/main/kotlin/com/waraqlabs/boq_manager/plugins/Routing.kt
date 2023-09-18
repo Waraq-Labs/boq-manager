@@ -5,12 +5,13 @@ import com.waraqlabs.boq_manager.projects.projectRoutes
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.routing.*
+import java.io.File
 
 fun Application.configureRouting() {
     routing {
         authRoutes()
         projectRoutes()
 
-        staticResources("/static", "static_files")
+        staticFiles("/static", File("src/main/resources/static_files"))
     }
 }

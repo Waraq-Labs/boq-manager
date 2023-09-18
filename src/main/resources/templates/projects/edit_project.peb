@@ -2,102 +2,74 @@
 
 {% block content %}
 <div class="container">
-    <div class="row mb-5">
-        <div class="col">
-            <h1>{{ project.name }}</h1>
-        </div>
-        <div class="col d-flex justify-content-end align-items-center">
-            <a href="/projects" class="btn btn-outline-secondary me-2">Back</a>
-            <button class="btn btn-outline-primary">💾 Save Changes</button>
-        </div>
-    </div>
-
-    {% for location in locations %}
+    <form action="" method="post" id="project-edit-form">
         <div class="row mb-5">
-            <div class="col" id="boq_for_{{ location.id }}">
-                <h2>{{ location.name }}</h2>
-                <div class="row text-center mb-1">
-                    <div class="col-5">
-                        Product Name
-                    </div>
-                    <div class="col-2">Qty. in store</div>
-                    <div class="col-2">Qty. to install</div>
-                    <div class="col">
-                        <button class="btn btn-outline-success text-decoration-none add-location-boq-line"
-                           data-template-selector="#boq_template_{{ location.id }}"
-                           data-add-target-selector="#boq_for_{{ location.id }}">
-                            +
-                        </button>
-                    </div>
-                </div>
-
-                <template id="boq_template_{{ location.id }}">
-                    <div class="row mb-2 boq-line">
-                        <div class="col-5">
-                            <div class="input-group">
-                                <select type="text" class="form-select" name="boq_product_{{ location.id }}[]">
-                                    <option disabled selected>Select a product</option>
-                                </select>
-                                <a href="" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#new-product-modal">+</a>
-                            </div>
-                        </div>
-                        <div class="col-2">
-                            <input type="number" class="form-control" name="boq_qty_in_store_{{ location.id }}[]"
-                                   min="0" value="0">
-                        </div>
-                        <div class="col-2">
-                            <input type="number" class="form-control" name="boq_qty_to_install_{{ location.id }}[]"
-                                   min="0" value="0">
-                        </div>
-                        <div class="col">
-                            <button class="btn btn-outline-danger remove-boq-line">🗑️</button>
-                        </div>
-                    </div>
-                </template>
+            <div class="col">
+                <h1>{{ project.name }}</h1>
+            </div>
+            <div class="col d-flex justify-content-end align-items-center">
+                <a href="/projects" class="btn btn-outline-secondary me-2">Back</a>
+                <button type="submit" class="btn btn-outline-primary">💾 Save Changes</button>
             </div>
         </div>
-    {% endfor %}
+
+        {% for location in locations %}
+            <div class="row mb-5">
+                <div class="col" id="boq-for-{{ location.id }}">
+                    <h2>{{ location.name }}</h2>
+                    <div class="row text-center mb-1">
+                        <div class="col-5">
+                            Product Name
+                        </div>
+                        <div class="col-2">Qty. in store</div>
+                        <div class="col-2">Qty. to install</div>
+                        <div class="col">
+                            <button type="button"
+                                    class="btn btn-outline-success text-decoration-none add-location-boq-line"
+                                    data-template-selector="#boq-template-{{ location.id }}"
+                                    data-add-target-selector="#boq-for-{{ location.id }}">
+                                +
+                            </button>
+                        </div>
+                    </div>
+
+                    <template id="boq-template-{{ location.id }}">
+                        <div class="row mb-2 boq-line">
+                            <div class="col-5">
+                                <div class="input-group">
+                                    <select type="text" class="form-select boq-product-selection"
+                                            name="boq-location-{{ location.id }}-product-id[]">
+                                        <option disabled selected>Select a product</option>
+                                        {% for product in products %}
+                                            <option value="{{ product.id }}">{{ product.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <a href="" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                                       data-bs-target="#new-product-modal">+</a>
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                <input type="number" class="form-control"
+                                       name="boq-location-{{ location.id }}-qty-in-store[]"
+                                       min="0" value="0">
+                            </div>
+                            <div class="col-2">
+                                <input type="number" class="form-control"
+                                       name="boq-location-{{ location.id }}-qty-to-install[]"
+                                       min="0" value="0">
+                            </div>
+                            <div class="col">
+                                <button class="btn btn-outline-danger remove-boq-line">🗑️</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        {% endfor %}
+    </form>
 </div>
 
-<script type="application/javascript">
-    window.addEventListener("load", function () {
-        new bootstrap.Modal("#new-product-modal").show();
-
-        document.getElementById("new-product-modal").addEventListener("show.bs.modal", function () {
-            document.getElementById("new-product-name").value = "";
-        });
-
-        document.addEventListener("click", function (e) {
-            if (!e.target.matches(".add-location-boq-line")) return;
-
-            const btn = e.target;
-            const templateTargetSelector = btn.dataset.templateSelector;
-            const addTargetSelector = btn.dataset.addTargetSelector;
-
-            const newBoqLineItem = document.querySelector(templateTargetSelector).content.cloneNode(true);
-            document.querySelector(addTargetSelector).appendChild(
-                    newBoqLineItem
-            );
-        });
-
-        document.addEventListener("click", function (e) {
-            if (!e.target.matches(".remove-boq-line")) return;
-
-            e.target.closest(".boq-line").remove();
-        });
-
-        function createNewProduct() {
-            const cancelButton = document.getElementById("cancel-new-product");
-            const saveButton = document.getElementById("save-new-product");
-
-            cancelButton.disabled = true;
-            saveButton.disabled = true;
-
-            saveButton.getElementsByClassName("spinner-grow")[0].classList.remove("d-none");
-        }
-        document.getElementById("save-new-product").addEventListener("click", createNewProduct);
-    });
-</script>
+<script type="application/javascript" src="/static/js/edit_project.js"></script>
 
 <div class="modal" tabindex="-1" id="new-product-modal" data-bs-backdrop="static">
     <div class="modal-dialog">
@@ -105,27 +77,30 @@
             <div class="modal-header">
                 <h1 class="modal-title fs-3">Create new product</h1>
             </div>
-            <div class="modal-body">
-                <div class="container-fluid">
-                    <form action="" method="post">
+            <form action="/projects/{{ project.id }}/products" method="post" id="new-product-form">
+                <div class="modal-body">
+                    <div class="container-fluid">
                         <div class="row">
                             <div class="col">
                                 <label for="new-product-name" class="form-label">Product Name</label>
                             </div>
                             <div class="col">
-                                <input type="text" id="new-product-name" name="new-product-name" class="form-input">
+                                <input type="text" required id="new-product-name" name="new-product-name"
+                                       class="form-input">
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancel-new-product">Close</button>
-                <button type="button" class="btn btn-primary" id="save-new-product">
-                    <span class="button-text">Save changes</span>
-                    <span class="spinner-grow spinner-grow-sm d-none"></span>
-                </button>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancel-new-product">
+                        Close
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="save-new-product">
+                        <span class="button-text">Save changes</span>
+                        <span class="spinner-grow spinner-grow-sm d-none"></span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
